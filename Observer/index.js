@@ -1,55 +1,35 @@
-/*订阅发布者模式*/
-const Subscribe = function() {
-    const _this = this;
-    this.observers = [];
+/**
+ * @description 订阅发布者模式
+ * @author slim。
+ * @date 2017.12.5
+ */
+var Pubsub = {};
 
-    return {
-        //订阅
-        subscribe(observer) {
-            _this.observers.push(observer);
-        },
-        //取消订阅
-        unsubscribe(observer) {
-            const index = _this.observers.indexOf(observer);
-            if(index > -1) {
-                _this.observers[index].splice(index, 1);
+;(function(O) {
+
+    let observers = [],
+    observerId = 0;
+
+    O.subscribe = function(topic, func) {
+        observers[topic].push({
+            id: observerId,
+            callback: func
+        });
+
+        observerId++;
+
+        return observerId;
+    }
+        O.unsubscribe = function(topic, func) {
+            const index = observers[topic].indexOf(func);
+
+            if(~index) {
+                observers[topic].splice(index, 1);
             }
-        },
-        //触发
-        trigger(observer) {
-            const index = _this.observers.indexOf(observer);
-            if(index > -1) {
-                _this.observers[index].triggerfn(index);
-            }
-        },
-        //触发所有
-        triggerAll() {
-            _this.observers.forEach((element, index) => {
-                element.triggerfn(index);
+        }
+        O.publish = function(topic, func) {
+            observers[topic].forEach((element, index) => {
+                element[topic](func);
             });
         }
-    }
-}
-
-const Observer = function() {
-    return {
-        //执行事件
-        triggerfn(index) {
-            console.log(index);
-        }
-    }
-}
-
-const subscribes = new Subscribe();
-
-const observer1 = new Observer();
-const observer2 = new Observer();
-
-subscribes.subscribe(observer1);
-subscribes.subscribe(observer2);
-
-subscribes.triggerAll();
-
-
-
-
+})(Pubsub);
